@@ -24,29 +24,31 @@ app.get("/api/hello", function (req, res) {
   res.json({greeting: 'hello API'});
 });
 
-app.get('/api/:date?', (req, res) => {
-  const { date } = req.params;
-  let dateObj;
-
-  if (!date) {
-    // If date parameter is empty, return current time
-    dateObj = new Date();
-  } else {
-    // Check if the provided date is a Unix timestamp
-    if (!isNaN(date)) {
-      dateObj = new Date(parseInt(date));
-    } else {
-      // Parse the provided date string
-      dateObj = new Date(date);
-      // Check if date is valid
-      if (isNaN(dateObj.getTime())) {
-        return res.json({ error: 'Invalid Date' });
-      }
-    }
+app.get("/api/:date?", (req, res) => {
+  // Extract date parameter from request
+  const dateParam = req.params.date;
+  // Initialize variable to hold date object
+   let dateObject;
+  // if no date parameter is provided, use current date
+  if (!dateParam) {
+    dateObject = new Date();
   }
-
-  // Return Unix timestamp and UTC date string
-  res.json({ unix: dateObj.getTime(), utc: dateObj.toUTCString() });
+  // if parameter is in unix timestamp format(5 or more digits), then convert it to a date object
+  else if (/\d{5,}/.test(dateParam)) {
+    dateObject = new Date(parseInt(dateParam));
+  }
+  // if date parameter in a string, then convert it to  a date object
+  else {
+    dateObject = new Date(dateParam);
+  }
+  // if date object is invalid, return a error response ({ error: "Invalid Date" })
+  if (isNaN(dateObject)) {
+    return res.json({ error: "Invalid Date" });
+  }
+  // if date is valid, return unix timestamp and utc string
+  else {
+    return res.json({unix: dateObject.getTime(), utc: dateObject.toUTCString()});
+  }
 });
 
 
